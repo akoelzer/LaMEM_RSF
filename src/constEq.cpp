@@ -432,12 +432,12 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 	{
 		ctx->sigma_c=0e6;
 	}
-	ctx->mu_d=0.3;
-	ctx->mu_s=0.3;
+	ctx->mu_d=0.2;
+	ctx->mu_s=0.5;
 	//ctx->sigma_c=1e6;
-	ctx->V_c=1e-7;
+	ctx->V_c=4e-9;
 	//ctx->sigma_c=1e6;
-	if (dP<1e6) PetscPrintf(PETSC_COMM_WORLD,"dP = %e p = %e\n",dP,ctx->p);
+	//if (dP<1e6) PetscPrintf(PETSC_COMM_WORLD,"dP = %e p = %e\n",dP,ctx->p);
 	if(ctx->mu_d && dP > 0.0 && DII)
 	{
 		//PetscPrintf(PETSC_COMM_WORLD,"Entering RSF block\n");
@@ -456,7 +456,7 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 		//dy = SIZE_CELL(j, sy, fs->dsy);
 		//dz = SIZE_CELL(k, sz, fs->dsz);
 		//D = sqrt(dx*dx + dy*dy + dz*dz);
-		D=400; // grid size placeholder, eyeballed for setup
+		D=ctx->Le; // grid size
 		// get initial viscosity
 		eta = tauII/(2.0*DII);
 
