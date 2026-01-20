@@ -346,6 +346,7 @@ PetscErrorCode devConstEq(ConstEqCtx *ctx)
 	ctx->DIIfk  = 0.0; // Frank-Kamenetzky strain rate
 	ctx->DIIpl  = 0.0; // plastic strain rate
 	ctx->yield  = 0.0; // yield stress
+	ctx->V_p    = 0.0; // plastic velocity
 
 	// zero out stabilization and viscoplastic viscosity
 	svDev->eta_st = 0.0;
@@ -426,17 +427,24 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 	dP = dP + 	ctrl->pShift;
 	if(ID==0)
 	{
+		ctx->mu_s=0.5;
+		ctx->mu_d=0.7;
 		ctx->sigma_c=1e7;
 	}
 	else if(ID==1)
 	{
+		ctx->mu_s=0.5;
+		ctx->mu_d=0.15;
 		ctx->sigma_c=0e6;
 	}
-	ctx->mu_d=0.2;
-	ctx->mu_s=0.5;
-	//ctx->sigma_c=1e6;
-	ctx->V_c=4e-9;
-	//ctx->sigma_c=1e6;
+	else if(ID==2)
+	{
+		ctx->mu_s=0.3;
+		ctx->mu_d=0.7;
+		ctx->sigma_c=0e6;
+	}
+	ctx->V_c=1e-8;
+
 	//if (dP<1e6) PetscPrintf(PETSC_COMM_WORLD,"dP = %e p = %e\n",dP,ctx->p);
 	if(ctx->mu_d && dP > 0.0 && DII)
 	{
@@ -451,12 +459,7 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 			tauII = dP*ctx->mu_s + ctx->sigma_c;
 		}
 		// get grid size
-		// get characteristic element size
-		//dx = SIZE_CELL(i, sx, fs->dsx);
-		//dy = SIZE_CELL(j, sy, fs->dsy);
-		//dz = SIZE_CELL(k, sz, fs->dsz);
-		//D = sqrt(dx*dx + dy*dy + dz*dz);
-		D=ctx->Le; // grid size
+		D=ctx->Le; // grid size (maybe not ideal)
 		// get initial viscosity
 		eta = tauII/(2.0*DII);
 
@@ -467,6 +470,7 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 		if(DIIpl < 0.0)
 		{
 			DIIpl = 0.0;
+			ctx->V_p = 0.0; //no plastic slip rate
 		}
 		else
 		{
@@ -483,7 +487,7 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 
 				// compute mu
 				mu_eff = ctx->mu_d+(ctx->mu_s-ctx->mu_d)/(1+V_p/ctx->V_c);
-				if (V_p>4e-9) PetscPrintf(PETSC_COMM_WORLD,"V_p = %e, mu_eff = %f\n",V_p,mu_eff);
+				//if (V_p>4e-9) PetscPrintf(PETSC_COMM_WORLD,"V_p = %e, mu_eff = %f\n",V_p,mu_eff);
 				//mu_eff = 1.0; // placeholder
 
 				// update yield stress
@@ -493,8 +497,9 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 			    // store current strain strain rate
 			    DIIplc = DIIpl;
 
-				// compute updated plastic strain rate
+				// compute updated plastic strain rate and Vp
 				DIIpl = getConsEqRes(eta, ctx);
+				V_p = 2*D*DIIpl/ctx->scal->time_si;
 
 				// set convergence flag
 				conv = (PetscAbsScalar((DIIpl - DIIplc)/DII) <= ctrl->lrtol);
@@ -502,10 +507,12 @@ PetscErrorCode getPhaseVisc(ConstEqCtx *ctx, PetscInt ID)
 				if(DIIpl < 0.0)
 				{
 					DIIpl = 0.0;
+					ctx->V_p = 0.0; //no plastic slip rate
 				}
 
 			} while(!conv && ++it < ctrl->lmaxit && DIIpl>0);
-			ctx->yield  = tauII;  // plastic yield stress
+			ctx->yield  = tauII;	// plastic yield stress
+			ctx->V_p	= V_p;		// plastic slip rate
 		}
 	}
 	//===========
@@ -937,7 +944,7 @@ PetscErrorCode cellConstEq(
 	svCell->DIIfk  = ctx->DIIfk;  // relative Frank-Kamenetzky strain rate
 	svCell->DIIpl  = ctx->DIIpl;  // relative plastic strain rate
 	svCell->yield  = ctx->yield;  // average yield stress in control volume
-
+	svCell->V_p    = ctx->V_p;    // plastic velocity
 
 	if(ctrl->actExp && ctrl->actDike)
     {
