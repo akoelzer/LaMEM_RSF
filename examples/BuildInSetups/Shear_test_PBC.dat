@@ -36,8 +36,8 @@
 
     time_end         =  1e12     # simulation end time
     dt               =  1e7     # initial time step
-    dt_min           =  0.001     # minimum time step (declare divergence if lower value is attempted)
-    dt_max           =  1e8     # maximum time step
+    dt_min           =  1.0     # minimum time step (declare divergence if lower value is attempted)
+    dt_max           =  1e7     # maximum time step
     nstep_max        =  10000     # maximum allowed number of steps (lower bound: time_end/dt_max)
     nstep_out        =  1     # save output every n steps; Set this to -1 to deactivate saving output
     nstep_rdb        =  100     # save restart database every n steps
@@ -123,10 +123,20 @@
 
     <LayerStart>
         phase       = 1
-        top         = -24500.0
-        bottom      = -25500.0
+        top         = -24700.0
+        bottom      = -25300.0
     <LayerEnd>
     
+    <BoxStart>
+        phase       = 2
+        bounds      = -25000.0 -15000.0 -100.0 100.0 -25300.0 -24700.0 # box bound coordinates: left, right, front, back, bottom, top
+    <BoxEnd>    
+     <BoxStart>
+        phase       = 2
+        bounds      = 15000.0 25000.0 -100.0 100.0 -25300.0 -24700.0 # box bound coordinates: left, right, front, back, bottom, top
+    <BoxEnd>       
+    
+# inclusion box    
     #<BoxStart>
     #    phase       = 1
     #    bounds      = -1000.0 1000 -100.0 100.0 -25500.0 -24500.0 # box bound coordinates: left, right, front, back, bottom, top
@@ -159,6 +169,7 @@
     out_shmax        =  0     # sh max
     out_ehmax        =  0     # eh max
     out_yield        =  1    # yield stress
+    out_V_p          =  1    # plastic slip velocity
     out_rel_dif_rate  =  0     # relative proportion of diffusion creep strainrate
     out_rel_dis_rate  =  0     # relative proportion of dislocation creep strainrate
     out_rel_prl_rate  =  0     # relative proportion of peierls creep strainrate
@@ -217,7 +228,7 @@
         #fr         = 36.86   # friction angle
 	<MaterialEnd>
 
-	# Define properties of weak zone
+	# Define properties of weak zone VW
 	<MaterialStart>
 		ID  = 1   # phase id
 		T   = 273.0
@@ -229,6 +240,17 @@
         #fr         = 6.86   # friction angle
 	<MaterialEnd>
 
+	# Define properties of weak zone VS
+	<MaterialStart>
+		ID  = 2   # phase id
+		T   = 273.0
+		rho = 2700   # density
+		#eta = 1e-3
+		G = 3e10
+		nu = 0.25
+        #ch         = 1e1    # cohesion
+        #fr         = 6.86   # friction angle
+	<MaterialEnd>
 
 #===============================================================================
 # Define phase transitions
