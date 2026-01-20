@@ -727,6 +727,21 @@ PetscErrorCode PVOutWriteYield(OutVec* outvec)
 	PetscFunctionReturn(0);
 }
 //---------------------------------------------------------------------------
+PetscErrorCode PVOutWriteVp(OutVec* outvec)
+{
+	COPY_FUNCTION_HEADER
+
+	// macro to copy plastic velocity to buffer
+
+	#define GET_VP buff[k][j][i] = jr->svCell[iter++].V_p;
+
+	cf = scal->unit;
+
+	INTERPOLATE_COPY(fs->DA_CEN, outbuf->lbcen, InterpCenterCorner, GET_VP, 1, 0)
+
+	PetscFunctionReturn(0);
+}
+//---------------------------------------------------------------------------
 PetscErrorCode PVOutWriteRelDIIdif(OutVec* outvec)
 {
 	COPY_FUNCTION_HEADER

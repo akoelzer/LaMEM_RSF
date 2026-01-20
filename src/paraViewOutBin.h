@@ -124,6 +124,7 @@ struct OutMask
 	PetscInt StAngle;        // Principal stress direction angle
 	PetscInt EHmax;          // maximum horizontal extension
 	PetscInt yield;          // yield stress
+	PetscInt V_p;            // plastic velocity
 	PetscInt DIIdif;         // diffusion creep relative strain rate
 	PetscInt DIIdis;         // dislocation creep relative strain rate
 	PetscInt DIIprl;         // Peierls creep relative strain rate

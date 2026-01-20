@@ -97,6 +97,7 @@ struct ConstEqCtx
 	PetscScalar  DIIfk;  // Frank-Kamenetzky strain rate
 	PetscScalar  DIIpl;  // plastic strain rate
 	PetscScalar  yield;  // yield stress
+	PetscScalar  V_p;	 // plastic velocity
 };
 
 //---------------------------------------------------------------------------

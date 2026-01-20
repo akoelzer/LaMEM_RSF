@@ -288,6 +288,7 @@ PetscInt OutMaskCountActive(OutMask *omask)
 	if(omask->StAngle)        cnt++; // Stress angle
 	if(omask->EHmax)          cnt++; // maximum horizontal stress
 	if(omask->yield)          cnt++; // yield stress
+	if(omask->V_p)			  cnt++; // plastic velocity
 	if(omask->DIIdif)         cnt++; // diffusion creep relative strain rate
 	if(omask->DIIdis)         cnt++; // dislocation creep relative strain rate
 	if(omask->DIIprl)         cnt++; // Peierls creep relative strain rate
@@ -354,6 +355,7 @@ PetscErrorCode PVOutCreate(PVOut *pvout, FB *fb)
 	ierr = getIntParam   (fb, _OPTIONAL_, "out_stangle",        &omask->StAngle,           1, 1); CHKERRQ(ierr);
 	ierr = getIntParam   (fb, _OPTIONAL_, "out_ehmax",          &omask->EHmax,             1, 1); CHKERRQ(ierr);
 	ierr = getIntParam   (fb, _OPTIONAL_, "out_yield",          &omask->yield,             1, 1); CHKERRQ(ierr);
+	ierr = getIntParam   (fb, _OPTIONAL_, "out_V_p",            &omask->V_p,               1, 1); CHKERRQ(ierr);
 	ierr = getIntParam   (fb, _OPTIONAL_, "out_rel_dif_rate",   &omask->DIIdif,            1, 1); CHKERRQ(ierr);
 	ierr = getIntParam   (fb, _OPTIONAL_, "out_rel_dis_rate",   &omask->DIIdis,            1, 1); CHKERRQ(ierr);
 	ierr = getIntParam   (fb, _OPTIONAL_, "out_rel_prl_rate",   &omask->DIIprl,            1, 1); CHKERRQ(ierr);
@@ -424,6 +426,7 @@ PetscErrorCode PVOutCreate(PVOut *pvout, FB *fb)
 	if(omask->StAngle)        PetscPrintf(PETSC_COMM_WORLD, "   Principal stress angle                  @ \n");
 	if(omask->EHmax)          PetscPrintf(PETSC_COMM_WORLD, "   Maximum horizontal extension            @ \n");
 	if(omask->yield)          PetscPrintf(PETSC_COMM_WORLD, "   Yield stress                            @ \n");
+	if(omask->V_p)            PetscPrintf(PETSC_COMM_WORLD, "   Plastic slip velocity                   @ \n");
 	if(omask->DIIdif)         PetscPrintf(PETSC_COMM_WORLD, "   Diffusion creep relative strain rate    @ \n");
 	if(omask->DIIdis)         PetscPrintf(PETSC_COMM_WORLD, "   Dislocation creep relative strain rate  @ \n");
 	if(omask->DIIprl)         PetscPrintf(PETSC_COMM_WORLD, "   Peierls creep relative strain rate      @ \n");
@@ -514,6 +517,7 @@ PetscErrorCode PVOutCreateData(PVOut *pvout)
 	if(omask->StAngle)        OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "StAngle",        scal->lbl_unit,             &PVOutWriteStAngle,      1, NULL);
 	if(omask->EHmax)          OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "EHmax",          scal->lbl_unit,             &PVOutWriteEHmax,        3, NULL);
 	if(omask->yield)          OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "yield",          scal->lbl_stress,           &PVOutWriteYield,        1, NULL);
+	if(omask->V_p)            OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "V_p",            "[m/s]",                      &PVOutWriteVp,           1, NULL);
 	if(omask->DIIdif)         OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "rel_dif_rate",   scal->lbl_unit,             &PVOutWriteRelDIIdif,    1, NULL);
 	if(omask->DIIdis)         OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "rel_dis_rate",   scal->lbl_unit,             &PVOutWriteRelDIIdis,    1, NULL);
 	if(omask->DIIprl)         OutVecCreate(&pvout->outvecs[iter++], jr, outbuf, "rel_prl_rate",   scal->lbl_unit,             &PVOutWriteRelDIIprl,    1, NULL);

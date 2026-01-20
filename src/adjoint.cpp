@@ -4506,6 +4506,7 @@ PetscErrorCode cellConstEqFD(
 	svCell->DIIdis = ctx->DIIdis; // relative dislocation creep strain rate
 	svCell->DIIprl = ctx->DIIprl; // relative Peierls creep strain rate
 	svCell->yield  = ctx->yield;  // average yield stress in control volume
+	svCell->V_p    = ctx->V_p;    // plastic slip rate
 
 	// compute volumetric residual
 	if(ctrl->actExp)
@@ -4790,6 +4791,7 @@ PetscErrorCode devConstEqFD(ConstEqCtx *ctx, AdjGrad *aop, ModParam *IOparam, Pe
 	ctx->DIIprl = 0.0; // Peierls creep strain rate
 	ctx->DIIpl  = 0.0; // plastic strain rate
 	ctx->yield  = 0.0; // yield stress
+	ctx->V_p    = 0.0; // plastic velocity
 
 	// zero out stabilization viscosity
 	svDev->eta_st = 0.0;
