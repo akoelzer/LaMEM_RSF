@@ -1011,6 +1011,7 @@ PetscErrorCode JacResGetResidual(JacRes *jr)
 	PetscScalar J2Inv, DII, z, rho, Tc, pc, pc_lith, pc_pore, dt, fssa, *grav;
 	PetscScalar ***fx,  ***fy,  ***fz, ***vx,  ***vy,  ***vz, ***gc, ***bcp;
 	PetscScalar ***dxx, ***dyy, ***dzz, ***dxy, ***dxz, ***dyz, ***p, ***T, ***p_lith, ***p_pore;
+	PetscScalar max_Vp = 0;
 
 	PetscErrorCode ierr;
 	PetscFunctionBeginUser;
@@ -1192,9 +1193,12 @@ PetscErrorCode JacResGetResidual(JacRes *jr)
 		// mass (volume)
 		gc[k][j][i] = gres;
 
+		// update maximum plastic slip rate
+		if (svCell->V_p > max_Vp) max_Vp = svCell->V_p;
 	}
 	END_STD_LOOP
-
+	if(max_Vp>0) PetscPrintf(PETSC_COMM_WORLD, "Maximum plastic velocity = %e\n", max_Vp);
+	jr->ts->max_Vp = max_Vp;
 	//-------------------------------
 	// xy edge points
 	//-------------------------------

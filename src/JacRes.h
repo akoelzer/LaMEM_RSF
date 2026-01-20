@@ -84,6 +84,7 @@ struct SolVarCell
 	PetscScalar  DIIfk;         // relative Frank-Kamenetzky creep strain rate
 	PetscScalar  DIIpl;         // relative plastic strain rate
 	PetscScalar  yield;         // average yield stress in control volume
+	PetscScalar  V_p;			// plastic slip rate
 
 };
 

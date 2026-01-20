@@ -229,6 +229,7 @@ PetscErrorCode TSSolGetCFLStep(
 {
 	Scaling     *scal;
 	PetscScalar  dt_cfl, dt_cfl_max;
+	PetscScalar  dt_plast;
 	PetscScalar *schedule;
 	PetscInt     istep;
 
@@ -302,6 +303,23 @@ PetscErrorCode TSSolGetCFLStep(
 		// check CFL limit
 		if(ts->dt_next > dt_cfl) ts->dt_next = dt_cfl;
 	}
+	/* if(ts->max_Vp>0)
+	{
+		dt_plast = 0.2*0.05/ts->max_Vp;
+		if (dt_plast < ts->dt_min) dt_plast = ts->dt_min;
+		PetscPrintf(PETSC_COMM_WORLD, "Plastic time step : %e %s \n", dt_plast*scal->time, scal->lbl_time);
+		if(ts->dt > dt_plast)
+		{
+			PetscPrintf(PETSC_COMM_WORLD, "Time step exceeds plastic criterion: %e %s\n", dt_plast, scal->lbl_time);
+			PetscPrintf(PETSC_COMM_WORLD, "--------------------------------------------------------------------------\n");
+			PetscPrintf(PETSC_COMM_WORLD, "***********************   RESTARTING TIME STEP!   ************************\n");
+			PetscPrintf(PETSC_COMM_WORLD, "--------------------------------------------------------------------------\n");
+			ts->dt = ts->dt/2;
+			(*restart) = 1;
+			PetscFunctionReturn(0);
+		}
+		if(ts->dt_next > dt_plast) ts->dt_next = dt_plast;
+	} */
 
 	// apply immediately if time step is not fixed (otherwise apply in the end of time step)
 	if(!ts->fix_dt) ts->dt = ts->dt_next;
